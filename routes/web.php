@@ -39,6 +39,8 @@ Route::group(['prefix' => 'admin'],function(){
 
         // Display the admin dashboard
         Route::get('/dashboard',[HomeController::class, 'index'])->name('admin.dashboard');
+        // Logout and redirect to login page
+        Route::get('/logout',[HomeController::class, 'logout'])->name('admin.logout');
 
     });
 });

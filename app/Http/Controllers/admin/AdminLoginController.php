@@ -15,7 +15,7 @@ class AdminLoginController extends Controller
         return view('admin.login');
     }
 
-    // Handle authentication attempt for admin login
+    // Authenticate the admin user
     public function authenticate(Request $request)
     {
         // Validate the user input (email and password)
@@ -28,10 +28,20 @@ class AdminLoginController extends Controller
         if ($validator->passes()) {
             // Attempt to authenticate the admin user
             if (Auth::guard('admin')->attempt(['email' => $request->email, 'password' => $request->password], $request->get('remember'))) {
-                // Redirect to the admin dashboard upon successful authentication
-                return redirect()->route('admin.dashboard');
+                // Get the authenticated admin user
+                $admin = Auth::guard('admin')->user();
+
+                // Check if the admin has the role '2'
+                if ($admin->role == 1) {
+                    // Redirect to the admin dashboard if authorized
+                    return redirect()->route('admin.dashboard');
+                } else {
+                    // Logout the admin and redirect with an error if not authorized
+                    Auth::guard('admin')->logout();
+                    return redirect()->route('admin.login')->with('error', 'You are not authorized to access the admin panel.');
+                }
             } else {
-                // Redirect back to the admin login page with an error message if authentication fails
+                // Redirect back to the admin login page with an error if authentication fails
                 return redirect()->route('admin.login')->with('error', 'Either Email/Password is incorrect');
             }
         } else {
@@ -42,4 +52,3 @@ class AdminLoginController extends Controller
         }
     }
 }
-
